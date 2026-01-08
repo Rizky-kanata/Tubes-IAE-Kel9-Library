@@ -1,0 +1,93 @@
+"A datetime string with format `Y-m-d H:i:s`"
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+# ========================================
+# QUERIES (Minimal 3) ✅
+# ========================================
+type Query {
+    "Query 1: Get all books with pagination"
+    books(first: Int = 10): [Book!]! @all
+
+    "Query 2: Get single book by ID"
+    book(id: ID! @eq): Book @find
+
+    "Query 3: Get current user with transactions (Relational Data)"
+    me: User @auth
+}
+
+# ========================================
+# MUTATIONS (Minimal 2) ✅
+# ========================================
+type Mutation {
+    "Mutation 1: Borrow book"
+    borrowBook(book_id: ID!): BorrowResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\BorrowBook")
+        @guard
+
+    "Mutation 2: Return book"
+    returnBook(transaction_id: ID!): ReturnResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\ReturnBook")
+        @guard
+}
+
+# ========================================
+# TYPES (Schema Definition)
+# ========================================
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    role: String!
+    created_at: DateTime!
+    "Relational data: User's transactions"
+    transactions: [Transaction!]! @hasMany
+}
+
+type Book {
+    id: ID!
+    title: String!
+    author: String!
+    isbn: String!
+    publisher: String!
+    year: Int!
+    total_stock: Int!
+    available_stock: Int!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Transaction {
+    id: ID!
+    user_id: ID!
+    book_id: ID!
+    borrow_date: DateTime!
+    due_date: DateTime!
+    return_date: DateTime
+    status: String!
+    "Relational: User who borrowed"
+    user: User! @belongsTo
+    "Relational: Book borrowed"
+    book: Book! @belongsTo
+}
+
+# ========================================
+# RESPONSE TYPES (JSON Format)
+# ========================================
+type BorrowResponse {
+    success: Boolean!
+    message: String!
+    data: Transaction
+    error: ErrorDetail
+}
+
+type ReturnResponse {
+    success: Boolean!
+    message: String!
+    data: Transaction
+    error: ErrorDetail
+}
+
+type ErrorDetail {
+    code: String
+    details: String
+}

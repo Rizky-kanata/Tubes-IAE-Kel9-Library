@@ -8,4 +8,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+// GraphiQL Playground
+if (config('lighthouse.route')) {
+    Route::get('/graphiql', '\Nuwave\Lighthouse\GraphQL\GraphQLPlaygroundController@get');
+}
