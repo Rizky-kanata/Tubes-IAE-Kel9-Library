@@ -35,7 +35,6 @@ Aplikasi perpustakaan digital berbasis web yang menyediakan fitur peminjaman dan
 - **Database**: MySQL 8.0
 - **Authentication**: Laravel Sanctum (JWT)
 - **GraphQL**: Lighthouse PHP
-- **Payment Gateway**: Midtrans
 
 ### Development Tools
 - **Server**: XAMPP
@@ -51,5 +50,4 @@ Aplikasi perpustakaan digital berbasis web yang menyediakan fitur peminjaman dan
     "laravel/framework": "^10.0",
     "laravel/sanctum": "^3.2",
     "nuwave/lighthouse": "^6.0",
-    "midtrans/midtrans-php": "^2.5"
 }
