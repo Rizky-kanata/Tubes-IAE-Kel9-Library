@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Transaksi - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #f5576c;
+            --primary-dark: #e0415a;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --text: #374151;
+            --border: #E5E7EB;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--light);
+            color: var(--text);
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: white; }
+        .nav-links { display: flex; gap: 15px; flex-wrap: wrap; }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        
+        /* Header */
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .page-header h2 { font-size: 2rem; color: var(--dark); }
+        
+        /* Button */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            margin: 0 2px;
+        }
+        .btn-success { background: #10B981; color: white; }
+        .btn-warning { background: #F59E0B; color: white; }
+        .btn-danger { background: #EF4444; color: white; }
+        .btn-info { background: #3B82F6; color: white; }
+        
+        /* Badge */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .badge-borrowed { background: #F59E0B; color: white; }
+        .badge-returned { background: #10B981; color: white; }
+        .badge-overdue { background: #EF4444; color: white; }
+        
+        /* Table Wrapper */
+        .table-wrapper {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        /* Table Controls */
+        .table-controls {
+            padding: 20px 30px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .entries-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .entries-control label {
+            font-weight: 500;
+            color: var(--text);
+        }
+        .entries-control select {
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            background: white;
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-box input {
+            padding: 8px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 250px;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Table */
+        .table-container {
+            padding: 0 30px 30px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+            position: sticky;
+            top: 0;
+        }
+        tbody tr:hover { background: var(--light); }
+        
+        /* Pagination */
+        .pagination-container {
+            padding: 20px 30px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .pagination-info {
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .pagination-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .pagination-buttons button {
+            padding: 8px 12px;
+            min-width: 40px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .pagination-buttons button:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .pagination-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination-buttons button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .table-controls, .pagination-container { 
+                flex-direction: column; 
+                align-items: flex-start;
+            }
+            .search-box input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">🔐 Admin Panel</h1>
+            <div class="nav-links">
+                <a href="admin-dashboard.html">Dashboard</a>
+                <a href="admin-books.html">Kelola Buku</a>
+                <a href="admin-users.html">Kelola User</a>
+                <a href="admin-transactions.html">Transaksi</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 40px; margin-bottom: 40px;">
+        <div class="page-header">
+            <h2>📋 Kelola Transaksi Peminjaman</h2>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-controls">
+                <div class="entries-control">
+                    <label>Tampilkan</label>
+                    <select id="entriesPerPage" onchange="changeEntriesPerPage()">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="all">Semua</option>
+                    </select>
+                    <label>data</label>
+                </div>
+                <div class="search-box">
+                    <label>🔍 Cari:</label>
+                    <input type="text" id="searchInput" placeholder="Cari transaksi..." onkeyup="searchTransactions()">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="transactionsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Buku</th>
+                            <th>Tgl Pinjam</th>
+                            <th>Tgl Kembali</th>
+                            <th>Status</th>
+                            <th>Denda</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-container">
+                <div class="pagination-info" id="paginationInfo">
+                    Menampilkan 0 dari 0 data
+                </div>
+                <div class="pagination-buttons" id="paginationButtons">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Protect admin page
+        if (!getToken() || localStorage.getItem('role') !== 'admin') {
+            alert('Akses ditolak!');
+            window.location.href = 'login-admin.html';
+        }
+
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let currentPage = 1;
+        let entriesPerPage = 10;
+
+        // Load transactions from API
+        async function loadTransactions() {
+            try {
+                console.log('🔄 Loading transactions from API...');
+                
+                const response = await apiRequest('/transactions?per_page=1000');
+                console.log('📦 Raw Response:', response);
+                
+                if (response.success === true && response.data) {
+                    allTransactions = response.data;
+                } else if (response.data && Array.isArray(response.data)) {
+                    allTransactions = response.data;
+                } else if (Array.isArray(response)) {
+                    allTransactions = response;
+                } else {
+                    console.warn('⚠️ Unexpected response format:', response);
+                    allTransactions = [];
+                }
+                
+                console.log(`✅ Loaded ${allTransactions.length} transactions from database`);
+                if (allTransactions.length > 0) {
+                    console.table(allTransactions.slice(0, 3));
+                }
+                
+                filteredTransactions = [...allTransactions];
+                currentPage = 1;
+                renderTable();
+                
+            } catch (error) {
+                console.error('❌ Error loading transactions:', error);
+                document.querySelector('#transactionsTable tbody').innerHTML = 
+                    `<tr><td colspan="8" style="text-align:center; color: red; padding: 40px;">
+                        ❌ Gagal load data: ${error.message}
+                        <br><small>Cek console (F12) untuk detail error</small>
+                    </td></tr>`;
+                updatePaginationInfo(0, 0, 0);
+                document.getElementById('paginationButtons').innerHTML = '';
+            }
+        }
+
+        // Render table with pagination
+        function renderTable() {
+            const tbody = document.querySelector('#transactionsTable tbody');
+            
+            if (filteredTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 40px;">Tidak ada data transaksi ditemukan</td></tr>';
+                updatePaginationInfo(0, 0, 0);
+                document.getElementById('paginationButtons').innerHTML = '';
+                return;
+            }
+
+            const totalEntries = filteredTransactions.length;
+            const maxEntries = entriesPerPage === 'all' ? totalEntries : parseInt(entriesPerPage);
+            const totalPages = Math.ceil(totalEntries / maxEntries);
+            
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+            
+            const startIndex = (currentPage - 1) * maxEntries;
+            const endIndex = Math.min(startIndex + maxEntries, totalEntries);
+            const transactionsToShow = filteredTransactions.slice(startIndex, endIndex);
+
+            console.log(`📊 Showing entries ${startIndex + 1} to ${endIndex} of ${totalEntries}`);
+
+            tbody.innerHTML = transactionsToShow.map(trans => {
+                const status = getStatus(trans);
+                const fine = calculateFine(trans);
+                
+                return `
+                <tr>
+                    <td>${trans.id}</td>
+                    <td><strong>${trans.user?.name || 'Unknown'}</strong><br><small>${trans.user?.email || ''}</small></td>
+                    <td><strong>${trans.book?.title || 'Unknown'}</strong><br><small>${trans.book?.author || ''}</small></td>
+                    <td>${formatDate(trans.borrow_date)}</td>
+                    <td>${trans.return_date ? formatDate(trans.return_date) : '<span style="color:#F59E0B;">Belum Kembali</span>'}</td>
+                    <td><span class="badge badge-${status.class}">${status.text}</span></td>
+                    <td><strong>${formatCurrency(fine)}</strong></td>
+                    <td>
+                        ${trans.status === 'borrowed' ? 
+                            `<button class="btn btn-sm btn-success" onclick="returnBook(${trans.id})">Kembalikan</button>` : 
+                            `<button class="btn btn-sm btn-info" onclick="viewDetail(${trans.id})">Detail</button>`
+                        }
+                    </td>
+                </tr>
+            `}).join('');
+
+            updatePaginationInfo(startIndex + 1, endIndex, totalEntries);
+            renderPagination(totalPages);
+        }
+
+        // Get status
+        function getStatus(trans) {
+            if (trans.status === 'returned') {
+                return { text: 'DIKEMBALIKAN', class: 'returned' };
+            }
+            
+            const today = new Date();
+            const dueDate = new Date(trans.due_date);
+            
+            if (today > dueDate) {
+                return { text: 'TERLAMBAT', class: 'overdue' };
+            }
+            
+            return { text: 'DIPINJAM', class: 'borrowed' };
+        }
+
+        // Calculate fine
+        function calculateFine(trans) {
+            if (trans.fine) return trans.fine;
+            if (trans.status !== 'borrowed') return 0;
+            
+            const today = new Date();
+            const dueDate = new Date(trans.due_date);
+            
+            if (today <= dueDate) return 0;
+            
+            const diffTime = Math.abs(today - dueDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            return diffDays * 1000; // Rp 1.000 per hari
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            if (amount === 0) return '-';
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        // Return book
+        async function returnBook(id) {
+            if (!confirm('⚠️ Konfirmasi pengembalian buku?')) return;
+            
+            try {
+                await apiRequest(`/transactions/${id}/return`, { 
+                    method: 'POST',
+                    body: JSON.stringify({ return_date: new Date().toISOString().split('T')[0] })
+                });
+                alert('✅ Buku berhasil dikembalikan!');
+                loadTransactions();
+            } catch (error) {
+                alert('❌ Gagal mengembalikan buku: ' + error.message);
+                console.error('Error:', error);
+            }
+        }
+
+        // View detail
+        function viewDetail(id) {
+            const trans = allTransactions.find(t => t.id === id);
+            if (!trans) return;
+            
+            const fine = calculateFine(trans);
+            const status = getStatus(trans);
+            
+            alert(`Detail Transaksi #${trans.id}
+            
+User: ${trans.user?.name}
+Email: ${trans.user?.email}
+Buku: ${trans.book?.title}
+Tgl Pinjam: ${formatDate(trans.borrow_date)}
+Tgl Jatuh Tempo: ${formatDate(trans.due_date)}
+Tgl Kembali: ${trans.return_date ? formatDate(trans.return_date) : 'Belum Kembali'}
+Status: ${status.text}
+Denda: ${formatCurrency(fine)}`);
+        }
+
+        // Update pagination info
+        function updatePaginationInfo(start, end, total) {
+            document.getElementById('paginationInfo').textContent = 
+                `Menampilkan ${start} sampai ${end} dari ${total} data`;
+        }
+
+        // Render pagination
+        function renderPagination(totalPages) {
+            const container = document.getElementById('paginationButtons');
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '<span style="color: #9CA3AF;">Semua data ditampilkan</span>';
+                return;
+            }
+
+            let html = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>❮ Prev</button>`;
+            html += `<button onclick="changePage(1)" class="${currentPage === 1 ? 'active' : ''}">1</button>`;
+            
+            if (currentPage > 3) html += `<button disabled>...</button>`;
+            
+            for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                html += `<button onclick="changePage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            
+            if (currentPage < totalPages - 2) html += `<button disabled>...</button>`;
+            
+            if (totalPages > 1) {
+                html += `<button onclick="changePage(${totalPages})" class="${currentPage === totalPages ? 'active' : ''}">${totalPages}</button>`;
+            }
+            
+            html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next ❯</button>`;
+            container.innerHTML = html;
+        }
+
+        // Change page
+        function changePage(page) {
+            const maxEntries = entriesPerPage === 'all' ? filteredTransactions.length : parseInt(entriesPerPage);
+            const totalPages = Math.ceil(filteredTransactions.length / maxEntries);
+            
+            if (page < 1 || page > totalPages || page === currentPage) return;
+            
+            currentPage = page;
+            renderTable();
+            document.querySelector('.table-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Change entries per page
+        function changeEntriesPerPage() {
+            entriesPerPage = document.getElementById('entriesPerPage').value;
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Search transactions
+        function searchTransactions() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (keyword === '') {
+                filteredTransactions = [...allTransactions];
+            } else {
+                filteredTransactions = allTransactions.filter(trans => 
+                    trans.user?.name.toLowerCase().includes(keyword) ||
+                    trans.user?.email.toLowerCase().includes(keyword) ||
+                    trans.book?.title.toLowerCase().includes(keyword) ||
+                    trans.book?.author.toLowerCase().includes(keyword) ||
+                    trans.id.toString().includes(keyword)
+                );
+            }
+            
+            console.log(`🔍 Search "${keyword}" found ${filteredTransactions.length} results`);
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('⚠️ Logout dari admin panel?')) {
+                localStorage.clear();
+                window.location.href = 'login-admin.html';
+            }
+        });
+
+        // Load transactions on page ready
+        loadTransactions();
+    </script>
+</body>
+</html>
