@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approve Transaksi - Admin Panel</title>
+    <style>
+        /* Minimal styles matching admin theme */
+        * { margin:0; padding:0; box-sizing:border-box }
+        :root{--primary:#f5576c; --light:#F9FAFB; --text:#374151; --border:#E5E7EB; --dark:#1F2937}
+        body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--light); color:var(--text)}
+        .container{max-width:1200px;margin:32px auto;padding:0 20px}
+        .navbar{background:linear-gradient(135deg,#f093fb,#f5576c);padding:14px;border-radius:8px;color:#fff;margin-bottom:18px}
+        .navbar .logo{font-weight:700}
+        .card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,0.06)}
+        h2{margin-bottom:8px}
+        table{width:100%;border-collapse:collapse;margin-top:12px}
+        th,td{padding:12px;border-bottom:1px solid var(--border);text-align:left}
+        th{background:#fafafa;position:sticky;top:0}
+        .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+        .btn-approve{background:#10B981;color:#fff}
+        .btn-disabled{opacity:.5;cursor:not-allowed}
+        .search{display:flex;gap:8px;align-items:center}
+        .search input{padding:8px 12px;border:1px solid var(--border);border-radius:8px}
+        .small{font-size:.9rem;color:#6B7280}
+        .msg{margin:10px 0;color:#ef4444}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar"><span class="logo">🔐 Admin - Approve Transaksi</span></div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                <div>
+                    <h2>Daftar Transaksi (Approve)</h2>
+                    <div class="small">Tampilkan transaksi yang memerlukan persetujuan admin.</div>
+                </div>
+                <div class="search">
+                    <input id="search" type="text" placeholder="Cari ID / user / buku..." oninput="onSearch()">
+                    <button class="btn" onclick="reload()">Reload</button>
+                </div>
+            </div>
+
+            <div id="message" class="msg" style="display:none"></div>
+
+            <div style="overflow-x:auto;margin-top:12px">
+                <table id="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Buku</th>
+                            <th>Pinjam</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr><td colspan="7" style="text-align:center;padding:24px">Memuat...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        if (!getToken() || localStorage.getItem('role') !== 'admin') {
+            alert('Akses ditolak - harus login admin');
+            window.location.href = 'login-admin.html';
+        }
+
+        let transactions = [];
+        const tbody = document.getElementById('tbody');
+        const message = document.getElementById('message');
+
+        async function loadData() {
+            showMessage('Memuat transaksi...', false);
+            try {
+                // Prefer admin endpoint; if it fails, fallback ke /transactions
+                let res;
+                try {
+                    res = await apiRequest('/admin/transactions');
+                } catch (e) {
+                    console.warn('/admin/transactions error, fallback to /transactions', e.message);
+                    res = await apiRequest('/transactions');
+                }
+
+                // response may be { success:true, data: [...] } or array
+                if (res && res.data && Array.isArray(res.data)) transactions = res.data;
+                else if (Array.isArray(res)) transactions = res;
+                else transactions = [];
+
+                renderTable(transactions);
+                showMessage('', false);
+            } catch (err) {
+                showMessage('Gagal memuat data: ' + (err.message || err), true);
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:#b91c1c">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderTable(items) {
+            if (!items || items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px">Tidak ada transaksi</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = items.map(tx => {
+                const userName = tx.user?.name || tx.user?.username || '-';
+                const bookTitle = tx.book?.title || tx.book?.name || '-';
+                const status = tx.status || '-';
+                const needsApprove = (status === 'pending' || status === 'borrowed'); // heuristic
+                return `
+                    <tr>
+                        <td>${tx.id}</td>
+                        <td>${escapeHtml(userName)}</td>
+                        <td>${escapeHtml(bookTitle)}</td>
+                        <td>${formatDate(tx.borrow_date)}</td>
+                        <td>${formatDate(tx.due_date)}</td>
+                        <td>${status}</td>
+                        <td>
+                            ${needsApprove ? `<button class="btn btn-approve" onclick="approve(${tx.id}, this)">Approve</button>` : '<span class="small">-</span>'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function approve(id, btn) {
+            if (!confirm('Setujui transaksi #' + id + ' ?')) return;
+            btn.disabled = true; btn.classList.add('btn-disabled');
+            try {
+                await apiRequest(`/transactions/${id}/approve`, { method: 'PUT' });
+                showMessage('Transaksi #' + id + ' disetujui', false);
+                await loadData();
+            } catch (err) {
+                console.error(err);
+                showMessage('Gagal approve: ' + (err.message || err), true);
+            } finally {
+                btn.disabled = false; btn.classList.remove('btn-disabled');
+            }
+        }
+
+        function onSearch() {
+            const q = document.getElementById('search').value.toLowerCase().trim();
+            if (!q) return renderTable(transactions);
+            const filtered = transactions.filter(t => {
+                return String(t.id).includes(q) ||
+                    (t.user && ((t.user.name || '').toLowerCase().includes(q) || (t.user.email || '').toLowerCase().includes(q))) ||
+                    (t.book && ((t.book.title || '').toLowerCase().includes(q) || (t.book.author || '').toLowerCase().includes(q)));
+            });
+            renderTable(filtered);
+        }
+
+        function reload() { document.getElementById('search').value = ''; loadData(); }
+
+        function showMessage(text, isError) {
+            if (!text) { message.style.display = 'none'; return; }
+            message.style.display = 'block';
+            message.style.color = isError ? '#b91c1c' : '#065f46';
+            message.textContent = text;
+        }
+
+        function formatDate(s) {
+            if (!s) return '-';
+            try { const d = new Date(s); return d.toLocaleDateString('id-ID'); } catch(e) { return s; }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"'`]/g, function(s) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;","`":"&#96;"})[s]; });
+        }
+
+        // initial load
+        loadData();
+    </script>
+</body>
+</html>
