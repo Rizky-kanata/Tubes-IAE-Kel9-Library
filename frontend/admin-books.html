@@ -273,6 +273,209 @@
             border-color: var(--primary);
         }
         
+        /* ===================================
+           🎨 TOAST NOTIFICATION - MODERN & BEAUTIFUL
+           =================================== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 420px;
+        }
+        
+        .toast {
+            min-width: 340px;
+            padding: 18px 22px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(12px);
+            border-left: 5px solid;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            transform-origin: right center;
+        }
+        
+        .toast::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+        
+        .toast::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.4);
+            animation: progress 4s linear forwards;
+            border-radius: 0 0 0 12px;
+        }
+        
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        @keyframes slideIn {
+            0% {
+                transform: translateX(450px) scale(0.7) rotateZ(5deg);
+                opacity: 0;
+            }
+            70% {
+                transform: translateX(-15px) scale(1.02) rotateZ(-2deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(0) scale(1) rotateZ(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            0% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+            30% {
+                transform: translateX(-20px) scale(0.98);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateX(450px) scale(0.7) rotateZ(5deg);
+                opacity: 0;
+            }
+        }
+        
+        .toast.hiding {
+            animation: slideOut 0.35s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+        }
+        
+        .toast-success {
+            background: linear-gradient(135deg, #0EA5E9 0%, #10B981 50%, #059669 100%);
+            border-left-color: #34D399;
+            color: white;
+        }
+        
+        .toast-error {
+            background: linear-gradient(135deg, #F43F5E 0%, #EF4444 50%, #DC2626 100%);
+            border-left-color: #F87171;
+            color: white;
+            animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), pulse 2s infinite;
+        }
+        
+        .toast-warning {
+            background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #D97706 100%);
+            border-left-color: #FDE047;
+            color: white;
+        }
+        
+        .toast-info {
+            background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #2563EB 100%);
+            border-left-color: #93C5FD;
+            color: white;
+        }
+        
+        .toast-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+            animation: iconBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        @keyframes iconBounce {
+            0% { 
+                transform: scale(0) rotate(-180deg); 
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.3) rotate(10deg); 
+            }
+            70% {
+                transform: scale(0.9) rotate(-5deg);
+            }
+            100% { 
+                transform: scale(1) rotate(0); 
+                opacity: 1;
+            }
+        }
+        
+        .toast-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 1;
+        }
+        
+        .toast-title {
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: 0.3px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .toast-message {
+            font-size: 0.92rem;
+            opacity: 0.95;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        
+        .toast-close {
+            background: rgba(255,255,255,0.25);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            flex-shrink: 0;
+            z-index: 1;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        .toast-close:hover {
+            background: rgba(255,255,255,0.4);
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        
+        .toast-close:active {
+            transform: rotate(90deg) scale(0.95);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+            50% { box-shadow: 0 10px 40px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.2); }
+        }
+        
         @media (max-width: 768px) {
             .form-row { grid-template-columns: 1fr; }
             .table-controls, .pagination-container { 
@@ -280,10 +483,25 @@
                 align-items: flex-start;
             }
             .search-box input { width: 100%; }
+            
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+            
+            .toast {
+                min-width: auto;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- ✅ Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <nav class="navbar">
         <div class="container">
             <h1 class="logo">🔐 Admin Panel</h1>
@@ -336,7 +554,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px;">Loading...</td>
+                            <td colspan="7" style="text-align: center; padding: 40px;">⏳ Loading...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -346,14 +564,11 @@
                 <div class="pagination-info" id="paginationInfo">
                     Menampilkan 0 dari 0 data
                 </div>
-                <div class="pagination-buttons" id="paginationButtons">
-                    <!-- Generated by JS -->
-                </div>
+                <div class="pagination-buttons" id="paginationButtons"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Add/Edit -->
     <div id="bookModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -362,12 +577,10 @@
             </div>
             <form id="bookForm">
                 <input type="hidden" id="bookId">
-                
                 <div class="form-group">
                     <label>Judul Buku *</label>
                     <input type="text" id="title" required placeholder="Masukkan judul buku">
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label>Pengarang *</label>
@@ -378,7 +591,6 @@
                         <input type="text" id="isbn" required placeholder="978-xxx-xxxx-xxx">
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label>Penerbit *</label>
@@ -389,7 +601,6 @@
                         <input type="number" id="year" required placeholder="2024" min="1900" max="2100">
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
                         <label>Total Stok *</label>
@@ -400,12 +611,10 @@
                         <input type="number" id="available_stock" required placeholder="15" min="0">
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Deskripsi</label>
                     <textarea id="description" rows="4" placeholder="Deskripsi singkat buku (opsional)"></textarea>
                 </div>
-
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan Buku</button>
             </form>
         </div>
@@ -413,10 +622,47 @@
 
     <script src="js/api.js"></script>
     <script>
-        // Protect admin page
+        // ===================================
+        // 🎨 TOAST NOTIFICATION FUNCTION
+        // ===================================
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="closeToast(this)">×</button>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => closeToast(toast.querySelector('.toast-close')), 4000);
+        }
+        
+        function closeToast(btn) {
+            const toast = btn.closest('.toast');
+            if (!toast) return;
+            toast.classList.add('hiding');
+            setTimeout(() => toast.remove(), 350);
+        }
+
+        // ===================================
+        // AUTH CHECK
+        // ===================================
         if (!getToken() || localStorage.getItem('role') !== 'admin') {
-            alert('Akses ditolak!');
-            window.location.href = 'login-admin.html';
+            showToast('Akses Ditolak', 'Silakan login sebagai admin', 'error');
+            setTimeout(() => window.location.href = 'login-admin.html', 2000);
+            throw new Error('Unauthorized');
         }
 
         let allBooks = [];
@@ -425,15 +671,10 @@
         let entriesPerPage = 10;
         let isEditMode = false;
 
-        // ⭐ Load books from API (FIXED FOR LARAVEL RESPONSE)
         async function loadBooks() {
             try {
-                console.log('🔄 Loading books from API...');
-                
                 const response = await apiRequest('/books?per_page=1000');
-                console.log('📦 Raw Response:', response);
                 
-                // ⭐ Handle Laravel response format: {success: true, data: [...], meta: {...}}
                 if (response.success === true && response.data) {
                     allBooks = response.data;
                 } else if (response.data && Array.isArray(response.data)) {
@@ -441,37 +682,25 @@
                 } else if (Array.isArray(response)) {
                     allBooks = response;
                 } else {
-                    console.warn('⚠️ Unexpected response format:', response);
                     allBooks = [];
-                }
-                
-                console.log(`✅ Loaded ${allBooks.length} books from database`);
-                if (allBooks.length > 0) {
-                    console.table(allBooks.slice(0, 3)); // Show first 3 books
                 }
                 
                 filteredBooks = [...allBooks];
                 currentPage = 1;
                 renderTable();
-                
             } catch (error) {
-                console.error('❌ Error loading books:', error);
+                console.error('Error:', error);
+                showToast('Gagal Memuat Data', error.message, 'error');
                 document.querySelector('#booksTable tbody').innerHTML = 
-                    `<tr><td colspan="7" style="text-align:center; color: red; padding: 40px;">
-                        ❌ Gagal load data: ${error.message}
-                        <br><small>Cek console (F12) untuk detail error</small>
-                    </td></tr>`;
-                updatePaginationInfo(0, 0, 0);
-                document.getElementById('paginationButtons').innerHTML = '';
+                    `<tr><td colspan="7" style="text-align:center; padding: 40px;">❌ Gagal memuat data buku</td></tr>`;
             }
         }
 
-        // Render table with pagination
         function renderTable() {
             const tbody = document.querySelector('#booksTable tbody');
             
             if (filteredBooks.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">Tidak ada data buku ditemukan</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">📭 Tidak ada data buku</td></tr>';
                 updatePaginationInfo(0, 0, 0);
                 document.getElementById('paginationButtons').innerHTML = '';
                 return;
@@ -488,8 +717,6 @@
             const endIndex = Math.min(startIndex + maxEntries, totalEntries);
             const booksToShow = filteredBooks.slice(startIndex, endIndex);
 
-            console.log(`📊 Showing entries ${startIndex + 1} to ${endIndex} of ${totalEntries}`);
-
             tbody.innerHTML = booksToShow.map(book => `
                 <tr>
                     <td>${book.id}</td>
@@ -499,8 +726,8 @@
                     <td>${book.year}</td>
                     <td><strong>${book.available_stock || 0}</strong> / ${book.total_stock || 0}</td>
                     <td>
-                        <button class="btn btn-sm btn-warning" onclick="editBook(${book.id})">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteBook(${book.id})">Hapus</button>
+                        <button class="btn btn-sm btn-warning" onclick="editBook(${book.id})">✏️ Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteBook(${book.id})">🗑️ Hapus</button>
                     </td>
                 </tr>
             `).join('');
@@ -509,13 +736,11 @@
             renderPagination(totalPages);
         }
 
-        // Update pagination info text
         function updatePaginationInfo(start, end, total) {
             document.getElementById('paginationInfo').textContent = 
                 `Menampilkan ${start} sampai ${end} dari ${total} data`;
         }
 
-        // Render pagination buttons
         function renderPagination(totalPages) {
             const container = document.getElementById('paginationButtons');
             
@@ -527,27 +752,19 @@
             let html = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>❮ Prev</button>`;
             html += `<button onclick="changePage(1)" class="${currentPage === 1 ? 'active' : ''}">1</button>`;
             
-            if (currentPage > 3) {
-                html += `<button disabled>...</button>`;
-            }
+            if (currentPage > 3) html += `<button disabled>...</button>`;
             
             for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
                 html += `<button onclick="changePage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
             }
             
-            if (currentPage < totalPages - 2) {
-                html += `<button disabled>...</button>`;
-            }
-            
-            if (totalPages > 1) {
-                html += `<button onclick="changePage(${totalPages})" class="${currentPage === totalPages ? 'active' : ''}">${totalPages}</button>`;
-            }
+            if (currentPage < totalPages - 2) html += `<button disabled>...</button>`;
+            if (totalPages > 1) html += `<button onclick="changePage(${totalPages})" class="${currentPage === totalPages ? 'active' : ''}">${totalPages}</button>`;
             
             html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next ❯</button>`;
             container.innerHTML = html;
         }
 
-        // Change page
         function changePage(page) {
             const maxEntries = entriesPerPage === 'all' ? filteredBooks.length : parseInt(entriesPerPage);
             const totalPages = Math.ceil(filteredBooks.length / maxEntries);
@@ -555,21 +772,16 @@
             if (page < 1 || page > totalPages || page === currentPage) return;
             
             currentPage = page;
-            console.log('📄 Changed to page:', currentPage);
             renderTable();
-            
             document.querySelector('.table-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // Change entries per page
         function changeEntriesPerPage() {
             entriesPerPage = document.getElementById('entriesPerPage').value;
-            console.log('🔢 Entries per page changed to:', entriesPerPage);
             currentPage = 1;
             renderTable();
         }
 
-        // Search books
         function searchBooks() {
             const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
             
@@ -585,12 +797,10 @@
                 );
             }
             
-            console.log(`🔍 Search "${keyword}" found ${filteredBooks.length} results`);
             currentPage = 1;
             renderTable();
         }
 
-        // Open add modal
         function openAddModal() {
             isEditMode = false;
             document.getElementById('modalTitle').textContent = 'Tambah Buku Baru';
@@ -599,12 +809,9 @@
             document.getElementById('bookModal').classList.add('active');
         }
 
-        // Edit book
         async function editBook(id) {
             try {
                 const response = await apiRequest(`/books/${id}`);
-                
-                // ⭐ Handle Laravel response: {success: true, data: {...}}
                 const book = response.success ? response.data : response.data || response;
                 
                 isEditMode = true;
@@ -615,37 +822,32 @@
                 document.getElementById('isbn').value = book.isbn || '';
                 document.getElementById('publisher').value = book.publisher || '';
                 document.getElementById('year').value = book.year;
-                document.getElementById('total_stock').value = book.total_stock || book.stock || 0;
-                document.getElementById('available_stock').value = book.available_stock || book.stock || 0;
+                document.getElementById('total_stock').value = book.total_stock || 0;
+                document.getElementById('available_stock').value = book.available_stock || 0;
                 document.getElementById('description').value = book.description || '';
                 
                 document.getElementById('bookModal').classList.add('active');
             } catch (error) {
-                alert('❌ Gagal load data buku: ' + error.message);
-                console.error('Error:', error);
+                showToast('Gagal Memuat', error.message, 'error');
             }
         }
 
-        // Delete book
         async function deleteBook(id) {
             if (!confirm('⚠️ Yakin ingin menghapus buku ini?\nData yang sudah dihapus tidak dapat dikembalikan.')) return;
             
             try {
                 await apiRequest(`/books/${id}`, { method: 'DELETE' });
-                alert('✅ Buku berhasil dihapus!');
+                showToast('Berhasil!', 'Buku berhasil dihapus', 'success');
                 loadBooks();
             } catch (error) {
-                alert('❌ Gagal hapus buku: ' + error.message);
-                console.error('Error:', error);
+                showToast('Gagal Menghapus', error.message, 'error');
             }
         }
 
-        // Close modal
         function closeModal() {
             document.getElementById('bookModal').classList.remove('active');
         }
 
-        // Auto-sync stock fields
         document.getElementById('total_stock').addEventListener('input', function() {
             const availableStock = document.getElementById('available_stock');
             if (!availableStock.value || availableStock.value === '0') {
@@ -653,7 +855,6 @@
             }
         });
 
-        // Submit form
         document.getElementById('bookForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -673,13 +874,11 @@
             };
 
             if (bookData.available_stock > bookData.total_stock) {
-                alert('❌ Stok tersedia tidak boleh lebih besar dari total stok!');
+                showToast('Validasi Gagal', 'Stok tersedia tidak boleh lebih besar dari total stok!', 'warning');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Simpan Buku';
                 return;
             }
-
-            console.log('📤 Sending book data:', bookData);
 
             try {
                 if (isEditMode) {
@@ -688,36 +887,36 @@
                         method: 'PUT',
                         body: JSON.stringify(bookData)
                     });
-                    alert('✅ Buku berhasil diupdate!');
+                    showToast('Berhasil!', 'Buku berhasil diupdate', 'success');
                 } else {
                     await apiRequest('/books', {
                         method: 'POST',
                         body: JSON.stringify(bookData)
                     });
-                    alert('✅ Buku berhasil ditambahkan!');
+                    showToast('Berhasil!', 'Buku berhasil ditambahkan', 'success');
                 }
                 
                 closeModal();
                 loadBooks();
             } catch (error) {
-                console.error('❌ Error:', error);
-                alert('❌ Error: ' + error.message);
+                showToast('Gagal Menyimpan', error.message, 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Simpan Buku';
             }
         });
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             if (confirm('⚠️ Logout dari admin panel?')) {
-                localStorage.clear();
-                window.location.href = 'login-admin.html';
+                showToast('Logout', 'Sampai jumpa lagi! 👋', 'info');
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = 'login-admin.html';
+                }, 1500);
             }
         });
 
-        // Load books on page ready
         loadBooks();
     </script>
 </body>

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Buku - Perpustakaan Digital</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #f5576c;
+            --primary-dark: #e0415a;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --text: #374151;
+            --border: #E5E7EB;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--light);
+            color: var(--text);
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-links { 
+            display: flex; 
+            gap: 15px; 
+            flex-wrap: wrap; 
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .hero h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .hero p { 
+            font-size: 1.2rem; 
+            opacity: 0.9;
+        }
+        
+        /* Search & Filter */
+        .search-section {
+            background: white;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 1400px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .search-box {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-box input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .search-box button {
+            padding: 12px 32px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .search-box button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* Books Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+        .books-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .books-header h2 {
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+        .view-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .book-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .book-cover {
+            height: 320px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            position: relative;
+        }
+        .book-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.9);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .badge-available { color: #10B981; }
+        .badge-unavailable { color: #EF4444; }
+        
+        .book-info {
+            padding: 20px;
+        }
+        .book-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .book-author {
+            color: var(--text);
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+        .book-year {
+            color: #9CA3AF;
+            font-size: 0.9rem;
+        }
+        .book-stock {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .stock-available { color: #10B981; }
+        .stock-low { color: #F59E0B; }
+        .stock-out { color: #EF4444; }
+        
+        .btn-borrow {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-borrow:hover {
+            background: var(--primary-dark);
+        }
+        .btn-borrow:disabled {
+            background: #9CA3AF;
+            cursor: not-allowed;
+        }
+        
+        /* Loading & Empty State */
+        .loading, .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text);
+        }
+        .loading { font-size: 1.2rem; }
+        .empty-state h3 { 
+            font-size: 1.5rem; 
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        .pagination button {
+            padding: 10px 16px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* Custom Modal */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+        }
+        .custom-modal.show {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+            position: relative;
+            margin: 20px;
+        }
+        .modal-icon {
+            font-size: 4.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--dark);
+            text-align: center;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        .modal-message {
+            color: var(--text);
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+        .modal-details {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
+        }
+        .modal-details p {
+            margin: 10px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .modal-details strong {
+            color: var(--dark);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .modal-btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        .modal-btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+        }
+        .modal-btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4);
+        }
+        .modal-btn-secondary {
+            background: #E5E7EB;
+            color: var(--text);
+        }
+        .modal-btn-secondary:hover {
+            background: #D1D5DB;
+            transform: translateY(-2px);
+        }
+        .modal-btn-success {
+            background: #10B981;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .modal-btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+        
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .books-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+            .book-cover { height: 250px; }
+            .modal-box { padding: 25px; max-width: 95%; }
+            .modal-icon { font-size: 3.5rem; }
+            .modal-title { font-size: 1.3rem; }
+            .modal-buttons { flex-direction: column; }
+            .modal-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <span>📚</span>
+                <span>Perpustakaan Digital</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Dashboard</a>
+                <a href="books.html">Katalog Buku</a>
+                <a href="my-books.html">Buku Saya</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>📚 Katalog Buku Perpustakaan</h1>
+        <p>Temukan buku favoritmu dan pinjam dengan mudah</p>
+    </section>
+
+    <!-- Search Section -->
+    <div class="container">
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Cari judul buku, pengarang, penerbit..." onkeyup="handleSearch()">
+                <button onclick="handleSearch()">Cari</button>
+            </div>
+        </div>
+
+        <!-- Books Header -->
+        <div class="books-header">
+            <h2>Daftar Buku Tersedia</h2>
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="changeView('grid')">📱 Grid</button>
+                <button class="view-btn" onclick="changeView('list')">📋 List</button>
+            </div>
+        </div>
+
+        <!-- Books Grid -->
+        <div class="books-grid" id="booksGrid">
+            <div class="loading">⏳ Memuat data buku...</div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="customModal" class="custom-modal">
+        <div class="modal-box">
+            <div class="modal-icon" id="modalIcon">📚</div>
+            <div class="modal-title" id="modalTitle">Konfirmasi</div>
+            <div class="modal-message" id="modalMessage">Apakah Anda yakin?</div>
+            <div class="modal-details" id="modalDetails" style="display: none;"></div>
+            <div class="modal-buttons" id="modalButtons">
+                <button class="modal-btn modal-btn-secondary" onclick="closeCustomModal()">Batal</button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmAction()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let allBooks = [];
+        let filteredBooks = [];
+        let currentPage = 1;
+        const booksPerPage = 12;
+        let modalCallback = null;
+
+        // ===================================
+        // CUSTOM MODAL FUNCTIONS
+        // ===================================
+        function showCustomModal(options) {
+            const modal = document.getElementById('customModal');
+            const icon = document.getElementById('modalIcon');
+            const title = document.getElementById('modalTitle');
+            const message = document.getElementById('modalMessage');
+            const details = document.getElementById('modalDetails');
+            const buttons = document.getElementById('modalButtons');
+
+            icon.textContent = options.icon || '📚';
+            title.textContent = options.title || 'Notifikasi';
+            message.textContent = options.message || '';
+            
+            if (options.details) {
+                details.innerHTML = options.details;
+                details.style.display = 'block';
+            } else {
+                details.style.display = 'none';
+            }
+
+            // ✅ SUPPORT CUSTOM BUTTONS HTML!
+            if (options.buttons) {
+                buttons.innerHTML = options.buttons;
+            } else if (options.type === 'confirm') {
+                buttons.innerHTML = `
+                    <button class="modal-btn modal-btn-secondary" onclick="closeCustomModal()">Batal</button>
+                    <button class="modal-btn modal-btn-primary" onclick="confirmAction()">Ya, Pinjam!</button>
+                `;
+                modalCallback = options.onConfirm;
+            } else if (options.type === 'success') {
+                buttons.innerHTML = `
+                    <button class="modal-btn modal-btn-success" onclick="closeCustomModal()">OK, Mengerti!</button>
+                `;
+            } else if (options.type === 'error') {
+                buttons.innerHTML = `
+                    <button class="modal-btn modal-btn-secondary" onclick="closeCustomModal()">Tutup</button>
+                `;
+            } else {
+                buttons.innerHTML = `
+                    <button class="modal-btn modal-btn-primary" onclick="closeCustomModal()">OK</button>
+                `;
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeCustomModal() {
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('show');
+            modalCallback = null;
+        }
+
+        function confirmAction() {
+            if (modalCallback) {
+                modalCallback();
+            }
+            closeCustomModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('customModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeCustomModal();
+                    }
+                });
+            }
+        });
+
+        // ===================================
+        // LOAD BOOKS
+        // ===================================
+        async function loadBooks() {
+            try {
+                console.log('🔄 Loading books from API...');
+                
+                const response = await apiRequest('/books?per_page=1000');
+                
+                if (response.success === true && response.data) {
+                    allBooks = response.data;
+                } else if (Array.isArray(response.data)) {
+                    allBooks = response.data;
+                } else if (Array.isArray(response)) {
+                    allBooks = response;
+                } else {
+                    allBooks = [];
+                }
+                
+                console.log(`✅ Loaded ${allBooks.length} books`);
+                
+                filteredBooks = [...allBooks];
+                currentPage = 1;
+                renderBooks();
+                
+            } catch (error) {
+                console.error('❌ Error loading books:', error);
+                document.getElementById('booksGrid').innerHTML = 
+                    `<div class="empty-state">
+                        <h3>❌ Gagal memuat data buku</h3>
+                        <p>${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        // ===================================
+        // RENDER BOOKS
+        // ===================================
+        function renderBooks() {
+            const grid = document.getElementById('booksGrid');
+            
+            if (filteredBooks.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📭 Tidak ada buku ditemukan</h3>
+                        <p>Coba cari dengan kata kunci lain</p>
+                    </div>`;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * booksPerPage;
+            const endIndex = Math.min(startIndex + booksPerPage, filteredBooks.length);
+            const booksToShow = filteredBooks.slice(startIndex, endIndex);
+
+            grid.innerHTML = booksToShow.map(book => {
+                const stock = book.available_stock || 0;
+                const isAvailable = stock > 0;
+                const stockClass = stock > 5 ? 'stock-available' : stock > 0 ? 'stock-low' : 'stock-out';
+                
+                return `
+                    <div class="book-card" onclick="viewBookDetail(${book.id})">
+                        <div class="book-cover">
+                            📖
+                            <div class="book-badge ${isAvailable ? 'badge-available' : 'badge-unavailable'}">
+                                ${isAvailable ? 'Tersedia' : 'Tidak Tersedia'}
+                            </div>
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-author">👤 ${book.author}</div>
+                            <div class="book-meta">
+                                <span class="book-year">📅 ${book.year}</span>
+                                <span class="book-stock ${stockClass}">
+                                    📚 Stok: ${stock}
+                                </span>
+                            </div>
+                            <button class="btn-borrow" 
+                                    onclick="borrowBook(event, ${book.id})" 
+                                    ${!isAvailable ? 'disabled' : ''}>
+                                ${isAvailable ? '📚 Pinjam Buku' : '❌ Tidak Tersedia'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            renderPagination(totalPages);
+        }
+
+        // ===================================
+        // PAGINATION
+        // ===================================
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>❮ Prev</button>`;
+            
+            for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+                html += `<button onclick="changePage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            
+            if (totalPages > 5) {
+                html += `<button disabled>...</button>`;
+                html += `<button onclick="changePage(${totalPages})">${totalPages}</button>`;
+            }
+            
+            html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next ❯</button>`;
+            
+            container.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderBooks();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ===================================
+        // SEARCH
+        // ===================================
+        function handleSearch() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (keyword === '') {
+                filteredBooks = [...allBooks];
+            } else {
+                filteredBooks = allBooks.filter(book => 
+                    book.title.toLowerCase().includes(keyword) ||
+                    book.author.toLowerCase().includes(keyword) ||
+                    (book.publisher && book.publisher.toLowerCase().includes(keyword))
+                );
+            }
+            
+            currentPage = 1;
+            renderBooks();
+        }
+
+        // ===================================
+        // VIEW BOOK DETAIL - MODAL CANTIK!
+        // ===================================
+        async function viewBookDetail(bookId) {
+            if (!bookId) return;
+            
+            try {
+                // Cari buku dari array allBooks
+                let book = allBooks.find(b => b.id === bookId);
+                
+                // Kalau tidak ada, fetch dari API
+                if (!book) {
+                    const response = await apiRequest(`/books/${bookId}`);
+                    book = response.success ? response.data : response;
+                }
+                
+                if (!book) {
+                    showCustomModal({
+                        icon: '❌',
+                        title: 'Error',
+                        message: 'Buku tidak ditemukan',
+                        type: 'error'
+                    });
+                    return;
+                }
+                
+                // Hitung stok & status
+                const availableStock = book.available_stock || 0;
+                const totalStock = book.total_stock || 0;
+                const isAvailable = availableStock > 0;
+                
+                // Status badge HTML
+                let statusBadge = '';
+                if (availableStock > 5) {
+                    statusBadge = '<span style="color: #10B981; font-weight: 600;">✅ Tersedia</span>';
+                } else if (availableStock > 0) {
+                    statusBadge = '<span style="color: #F59E0B; font-weight: 600;">⚠️ Stok Terbatas</span>';
+                } else {
+                    statusBadge = '<span style="color: #EF4444; font-weight: 600;">❌ Tidak Tersedia</span>';
+                }
+                
+                // Show modal dengan detail lengkap
+                showCustomModal({
+                    icon: '📖',
+                    title: book.title,
+                    message: `Karya ${book.author || 'Unknown Author'}`,
+                    details: `
+                        <div style="text-align: left;">
+                            <p><strong>👤 Pengarang:</strong> ${book.author || '-'}</p>
+                            <p><strong>🏢 Penerbit:</strong> ${book.publisher || '-'}</p>
+                            <p><strong>📅 Tahun Terbit:</strong> ${book.year || '-'}</p>
+                            <p><strong>🔢 ISBN:</strong> ${book.isbn || '-'}</p>
+                            <p><strong>📦 Stok:</strong> ${availableStock} / ${totalStock}</p>
+                            <p><strong>📊 Status:</strong> ${statusBadge}</p>
+                            ${book.description ? `
+                                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
+                                    <p><strong>📝 Deskripsi:</strong></p>
+                                    <p style="margin-top: 8px; line-height: 1.6; color: var(--text);">${book.description}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `,
+                    type: 'custom',
+                    buttons: isAvailable ? `
+                        <button class="modal-btn modal-btn-secondary" onclick="closeCustomModal()">Tutup</button>
+                        <button class="modal-btn modal-btn-primary" onclick="borrowBookFromDetail(${bookId})">📚 Pinjam Buku</button>
+                    ` : `
+                        <button class="modal-btn modal-btn-secondary" onclick="closeCustomModal()">Tutup</button>
+                    `
+                });
+                
+            } catch (error) {
+                console.error('Error loading book detail:', error);
+                showCustomModal({
+                    icon: '❌',
+                    title: 'Error',
+                    message: 'Gagal memuat detail buku',
+                    details: `<p>${error.message}</p>`,
+                    type: 'error'
+                });
+            }
+        }
+
+        // ===================================
+        // BORROW FROM DETAIL MODAL
+        // ===================================
+        async function borrowBookFromDetail(bookId) {
+            closeCustomModal();
+            
+            // Cari button pinjam di grid
+            const borrowButtons = document.querySelectorAll(`button[onclick*="borrowBook(event, ${bookId})"]`);
+            if (borrowButtons.length > 0) {
+                // Trigger click pada button asli
+                borrowButtons[0].click();
+            } else {
+                // Kalau button tidak ada, buat fake event
+                const fakeEvent = {
+                    stopPropagation: () => {},
+                    target: { 
+                        innerHTML: '📚 Pinjam Buku', 
+                        disabled: false 
+                    }
+                };
+                await borrowBook(fakeEvent, bookId);
+            }
+        }
+
+        // ===================================
+        // BORROW BOOK
+        // ===================================
+        async function borrowBook(event, bookId) {
+            event.stopPropagation();
+            
+            showCustomModal({
+                icon: '📚',
+                title: '📚 Pinjam Buku',
+                message: 'Yakin ingin meminjam buku ini?',
+                details: `
+                    <p><strong>⏰ Durasi peminjaman:</strong> 14 hari</p>
+                    <p><strong>💰 Denda keterlambatan:</strong> Rp 5.000/hari</p>
+                    <p><strong>💵 Denda maksimal:</strong> Rp 100.000</p>
+                    <p><strong>📍 Pengambilan buku:</strong> Di perpustakaan</p>
+                `,
+                type: 'confirm',
+                onConfirm: async () => {
+                    const btn = event.target;
+                    const originalText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
+
+                    try {
+                        console.log('📤 Borrowing book ID:', bookId);
+                        
+                        const response = await apiRequest('/transactions/borrow', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                book_id: bookId
+                            })
+                        });
+                        
+                        console.log('📦 Response:', response);
+                        
+                        if (response.success) {
+                            showCustomModal({
+                                icon: '✅',
+                                title: '✅ Berhasil!',
+                                message: response.message,
+                                details: `
+                                    <p><strong>📅 Tanggal Pinjam:</strong> ${response.data.borrow_date}</p>
+                                    <p><strong>⏰ Batas Kembali:</strong> ${response.data.due_date}</p>
+                                    <p><strong>💰 Denda/hari:</strong> ${response.data.fine_per_day}</p>
+                                    <p style="color: #F59E0B; margin-top: 15px; padding: 10px; background: #FEF3C7; border-radius: 6px;">
+                                        <strong>⚠️ ${response.data.warning}</strong>
+                                    </p>
+                                `,
+                                type: 'success'
+                            });
+                            
+                            loadBooks();
+                        } else {
+                            showCustomModal({
+                                icon: '❌',
+                                title: 'Gagal Meminjam',
+                                message: response.message || 'Gagal meminjam buku',
+                                type: 'error'
+                            });
+                            
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        }
+                        
+                    } catch (error) {
+                        console.error('❌ Error borrowing book:', error);
+                        
+                        showCustomModal({
+                            icon: '❌',
+                            title: 'Error',
+                            message: 'Gagal meminjam buku: ' + error.message,
+                            details: `<p><em>Silakan coba lagi atau hubungi admin</em></p>`,
+                            type: 'error'
+                        });
+                        
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                }
+            });
+        }
+
+        // ===================================
+        // CHANGE VIEW
+        // ===================================
+        function changeView(view) {
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            // TODO: Implement list view
+        }
+
+        // ===================================
+        // LOGOUT
+        // ===================================
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            showCustomModal({
+                icon: '🚪',
+                title: 'Logout',
+                message: 'Yakin ingin keluar dari akun Anda?',
+                details: '<p><em>Anda harus login kembali untuk mengakses aplikasi</em></p>',
+                type: 'confirm',
+                onConfirm: () => {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+
+        // Load books on page load
+        loadBooks();
+    </script>
+</body>
+</html>
